@@ -27,7 +27,7 @@ pub struct Make<'info>{
         seeds = [b"escrow", maker.key.as_ref(), seed.to_le_bytes().as_ref()],
         bump
     )]
-    pub escrow: Account<'info, Escrow>,
+    pub escrow: Account<'info, Escrow>,//escrow to store data 
 
     #[account(
         init,
