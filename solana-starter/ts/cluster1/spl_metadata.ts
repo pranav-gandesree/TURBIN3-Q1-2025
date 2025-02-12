@@ -10,7 +10,7 @@ import { createSignerFromKeypair, signerIdentity, publicKey } from "@metaplex-fo
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 // Define our Mint address
-const mint = publicKey("ATJmZnjE2DRfccEHjyfjdRQGsjpVB4roqbxKdYVc6Z2a")
+const mint = publicKey("8iMpYJ5LhT3DPnGHU3pvpPkyY5gN2mWmVrF67KesjFUY")
 
 // Create a UMI connection
 const umi = createUmi('https://api.devnet.solana.com');
@@ -28,9 +28,9 @@ umi.use(signerIdentity(createSignerFromKeypair(umi, keypair)));
 
         let data: DataV2Args = {
             name: "pranav",
-            symbol: "prnv",
-            uri: "https://arweave.net/123456",
-            sellerFeeBasisPoints: 40,
+            symbol: "PRANAV",
+            uri: "https://arweave.net/EQVDUcrCqXQdMUmE1Cm6uLUWfWFsF4WfFs4LNgKamv5x",
+            sellerFeeBasisPoints: 0,
             creators: null,
             collection: null,
             uses: null
