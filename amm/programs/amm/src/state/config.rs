@@ -15,3 +15,7 @@ pub struct Config {
     pub config_bump: u8,           // bump seed for the config account
     pub lp_bump: u8                // bump seed for the lp token
 }
+
+impl Space for Config{
+    const INIT_SPACE: usize =  8 + 8 + (1+ 32)+ 32+ 32 + 2+ 1+ 1+ 1; 
+}
