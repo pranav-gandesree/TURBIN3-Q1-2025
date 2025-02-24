@@ -8,7 +8,7 @@ pub struct Outcome{
  
     pub resolved: bool,
     
-    pub bets: Vec<Pubkey>,  // max 100 bets
+    pub event_id: Pubkey,  //links outcome to its event
 
     pub creation_date: i64,
 
@@ -24,5 +24,5 @@ pub struct Outcome{
 
     
 impl Space for Outcome {
-    const INIT_SPACE: usize = 8 + (4 + 100) + 1 +  (4 + 100 * 32 ) + 8 + 8 + 8 + 8 + 1;
+    const INIT_SPACE: usize = 8 + (4 + 100) + 1 +  32 + 8 + 8 + 8 + 8 + 1;
 }

@@ -6,8 +6,8 @@ pub struct Event{
 
     pub title: String, //max 100chars
 
-    pub creation_date: i64,
     pub creator: Pubkey,
+    pub creation_date: i64,
 
     pub resolved: bool,
 
@@ -19,7 +19,7 @@ pub struct Event{
     pub win_pool: Pubkey, //when users bet the amount will go to this pubkey owned by event pda
 
     pub seed: u64,
-    pub bump: u8
+    pub event_bump: u8
 
 }
 
