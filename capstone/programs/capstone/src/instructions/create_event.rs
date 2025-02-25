@@ -8,7 +8,7 @@ use anchor_spl::{
 use crate::{
     error::ErrorCode,
     Event,
-    USDC_MINT_ADDRESS
+    // USDC_MINT_ADDRESS
 };
 
 
@@ -41,7 +41,7 @@ pub struct CreateEvent<'info>{
     )]
     pub win_pool: InterfaceAccount<'info, TokenAccount>,
 
-    #[account(address = USDC_MINT_ADDRESS.parse::<Pubkey>().unwrap())]
+    // #[account(address = USDC_MINT_ADDRESS.parse::<Pubkey>().unwrap())]
     pub usdc_mint: InterfaceAccount<'info, Mint>,
 
     pub token_program: Interface<'info, TokenInterface>,
@@ -67,15 +67,15 @@ impl<'info> CreateEvent<'info>{
        require!(title.len() <= 100, ErrorCode::TitleTooLong);
 
        self.event.set_inner( Event {
-            event_id: event_id,
-            title: title,
+            event_id,
+            title,
             creator: self.creator.key(),
             creation_date: Clock::get()?.unix_timestamp,
             resolved: false,
             outcomes: [Pubkey::default(), Pubkey::default()],
             winning_outcome: None,
             win_pool: self.win_pool.key(),
-            seed: seed,
+            seed,
             event_bump: bumps.event
        });
     
