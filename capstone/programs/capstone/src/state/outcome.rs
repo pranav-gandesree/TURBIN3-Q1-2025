@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 pub struct Outcome{
     pub outcome_id: u64,
 
-    pub title: String, // max 100 chars
+    pub outcome_index: u8, // 0 = No, 1 = Yes (saves space)
  
     pub resolved: bool,
     
@@ -15,7 +15,6 @@ pub struct Outcome{
     pub shares: u64,// tracks no of shares in this outcome 
     pub total_liquidity: u64, // tracks total liquidity in this outcome
 
-
     pub seed: u64,
     pub bump: u8
 
@@ -24,5 +23,5 @@ pub struct Outcome{
 
     
 impl Space for Outcome {
-    const INIT_SPACE: usize = 8 + (4 + 100) + 1 +  32 + 8 + 8 + 8 + 8 + 1;
+    const INIT_SPACE: usize = 8 + 1 + 1 +  32 + 8 + 8 + 8 + 8 + 1;
 }

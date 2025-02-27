@@ -15,6 +15,13 @@ declare_id!("DwbLkzCHT1AkCJaiQa93vYcQrFA9yVuc82uZ9m5EK3Ev");
 pub mod capstone {
     use super::*;
 
+    pub fn initialize_user(ctx: Context<InitializeUser>, seed: u64)-> Result<()>{
+
+        ctx.accounts.initialize_user(seed, &ctx.bumps)?;
+
+        Ok(())
+    }
+
     pub fn create_event(
         ctx: Context<CreateEvent>,
         event_id: u64,
@@ -25,7 +32,15 @@ pub mod capstone {
 
         Ok(())
     }
-}
 
-#[derive(Accounts)]
-pub struct Initialize {}
+    pub fn initialize_outcomes(
+        ctx: Context<InitializeOutcomes>,
+        outcome_ids: [u64; 2],
+        seeds: [u64; 2],
+        outcome_yes_bump: u8,  
+        outcome_no_bump: u8 
+    ) -> Result<()>{
+        ctx.accounts.initialize_outcomes(outcome_ids, seeds, outcome_yes_bump, outcome_no_bump)?;
+        Ok(())
+    }
+}

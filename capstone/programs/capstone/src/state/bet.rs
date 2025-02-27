@@ -6,7 +6,7 @@ pub struct Bet{
 
     pub event: Pubkey,  //event this bet belongs to
     pub outcome: Pubkey, // the outcome this bet has placed on
-    pub outcome_index: u8, // 0 = No, 1 = Yes
+    pub outcome_index: u8, // 0 = Yes, 1 = No. on which outcome user is betting on
 
     pub claimed: bool,  //if the winner claimed his bet
 
