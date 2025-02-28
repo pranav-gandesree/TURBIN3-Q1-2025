@@ -35,5 +35,10 @@ pub enum ErrorCode {
     
     #[msg("Invalid Switchboard account")]
     InvalidSwitchboardAccount,
+
+    #[msg("Bet amount should be greater than zero")]
+    InvalidBetAmount,
 }
+
+
  

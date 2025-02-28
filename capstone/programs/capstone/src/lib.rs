@@ -35,12 +35,12 @@ pub mod capstone {
 
     pub fn initialize_outcomes(
         ctx: Context<InitializeOutcomes>,
-        outcome_ids: [u64; 2],
-        seeds: [u64; 2],
-        outcome_yes_bump: u8,  
-        outcome_no_bump: u8 
+        outcome_yes_id: u64,
+        outcome_no_id: u64,
+        outcome_yes_seed: u64,
+        outcome_no_seed: u64
     ) -> Result<()>{
-        ctx.accounts.initialize_outcomes(outcome_ids, seeds, outcome_yes_bump, outcome_no_bump)?;
+        ctx.accounts.initialize_outcomes(outcome_yes_id, outcome_no_id, outcome_yes_seed, outcome_no_seed, &ctx.bumps)?;
         Ok(())
     }
 }

@@ -87,3 +87,62 @@ pub struct PlaceBet<'info>{
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
+
+
+
+impl<'info> PlaceBet<'info> {
+    pub fn place_bet(
+        &mut self,
+        bet_amount: u64,
+        outcome_index: u8,
+        seed: u64,
+    ) -> Result<()> {
+        require!(outcome_index <= 1, ErrorCode::InvalidOutcomeIndex);
+        require!(bet_amount > 0, ErrorCode::InvalidBetAmount);
+
+        let better = self.better.key();
+        let event = self.event.key();
+        let outcome = self.outcome.key();
+
+        // Transfer bet amount from better's token account to win_pool
+        anchor_spl::token::transfer(
+            CpiContext::new(
+                self.token_program.to_account_info(),
+                anchor_spl::token::Transfer {
+                    from: self.better_token_account.to_account_info(),
+                    to: self.win_pool.to_account_info(),
+                    authority: self.better.to_account_info(),
+                },
+            ),
+            bet_amount,
+        )?;
+
+        // Initialize bet account
+        self.bet.set_inner(Bet {
+            better,
+            event,
+            outcome,
+            outcome_index,
+            claimed: false,
+            creation_date: Clock::get()?.unix_timestamp,
+            bet_amount,
+            seed,
+            bump: *self.bet.to_account_info().try_borrow_data()?.first().unwrap(),
+        });
+
+        // Initialize user_bet account
+        self.user_bet.set_inner(UserBet {
+            user: better,
+            bet: self.bet.key(),
+            seed,
+            bump: *self.user_bet.to_account_info().try_borrow_data()?.first().unwrap(),
+        });
+
+
+        self.user.total_bets +=1;
+
+        
+
+        Ok(())
+    }
+}

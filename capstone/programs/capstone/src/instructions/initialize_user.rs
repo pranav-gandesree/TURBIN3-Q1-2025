@@ -26,10 +26,20 @@ impl<'info> InitializeUser<'info> {
 
     pub fn initialize_user(&mut self, seed: u64, bumps: &InitializeUserBumps)-> Result<()>{
 
-        self.user.user = self.authority.key();
-        self.user.total_bets = 0;
-        self.user.seed = seed as u64;
-        self.user.bump = bumps.user;
+        // self.user.user = self.authority.key();
+        // self.user.total_bets = 0;
+        // self.user.seed = seed as u64;
+        // self.user.bump = bumps.user;
+
+        //use set_inner function when you are completely initializing a new accounts data 
+        //and not modifying any paritcular field
+        self.user.set_inner(User { 
+            user: self.authority.key(),
+            total_bets: 0,
+            seed,
+            bump: bumps.user,
+        });
+        
 
         Ok(())
     }

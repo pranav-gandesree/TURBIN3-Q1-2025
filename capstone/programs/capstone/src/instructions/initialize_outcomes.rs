@@ -2,13 +2,12 @@ use anchor_lang::prelude::*;
 
 use crate::{
     error::ErrorCode, Event, Outcome
-    // USDC_MINT_ADDRESS
 };
 
 
 
 #[derive(Accounts)]
-#[instruction(outcome_ids: [u64; 2], seeds: [u64; 2])]
+#[instruction(outcome_yes_id: u64,outcome_no_id: u64, outcome_yes_seed: u64, outcome_no_seed: u64)]
 pub struct InitializeOutcomes<'info>{
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -23,9 +22,13 @@ pub struct InitializeOutcomes<'info>{
         init,
         payer = creator,
         space = 8 + Outcome::INIT_SPACE,
-        seeds = [b"OUTCOME", event.key().as_ref(), outcome_ids[0].to_le_bytes().as_ref(),
-        seeds[0].to_le_bytes().as_ref()],
-        bump
+        seeds = [
+            b"OUTCOME",
+            event.key().as_ref(),
+            &outcome_yes_id.to_le_bytes().as_ref(),
+            &outcome_yes_seed.to_le_bytes()
+            ],
+        bump,
     )]
     pub outcome_no: Account<'info, Outcome>,
 
@@ -33,8 +36,12 @@ pub struct InitializeOutcomes<'info>{
         init,
         payer = creator,
         space = 8 + Outcome::INIT_SPACE,
-        seeds = [b"OUTCOME", event.key().as_ref(), outcome_ids[1].to_le_bytes().as_ref(),
-        seeds[1].to_le_bytes().as_ref()],
+        seeds = [
+            b"OUTCOME",
+            event.key().as_ref(),
+            &outcome_no_id.to_le_bytes().as_ref(),
+            &outcome_no_seed.to_le_bytes().as_ref()
+            ],
         bump
     )]
     pub outcome_yes: Account<'info, Outcome>,
@@ -49,37 +56,44 @@ impl<'info> InitializeOutcomes<'info>{
 
     pub fn initialize_outcomes(
         &mut self,
-        outcome_ids: [u64; 2],
-        seeds: [u64; 2],
-        outcome_yes_bump: u8,  
-        outcome_no_bump: u8     
+        outcome_yes_id: u64,
+        outcome_no_id: u64,
+        outcome_yes_seed: u64,
+        outcome_no_seed: u64,
+        bumps: &InitializeOutcomesBumps    
     )-> Result<()>{
         let clock = Clock::get()?;
 
-          // Initialize No Outcome
-          self.outcome_no.outcome_id = outcome_ids[0]; 
-          self.outcome_no.outcome_index = 0;
-          self.outcome_no.resolved = false;
-          self.outcome_no.event_id = self.event.key();
-          self.outcome_no.creation_date = clock.unix_timestamp;
-          self.outcome_no.shares = 0;
-          self.outcome_no.total_liquidity = 0;
-          self.outcome_no.seed = seeds[0];
-          self.outcome_no.bump = outcome_no_bump;
+
+        // Initialize No Outcome
+        self.outcome_no.set_inner(Outcome {
+            outcome_id : outcome_no_id,
+            outcome_index : 0,
+            resolved: false,
+            event_id: self.event.key(),
+            creation_date: clock.unix_timestamp,
+            shares: 0,
+            total_liquidity: 0,
+            seed: outcome_no_seed,
+            bump: bumps.outcome_no
+        });
 
             // Initialize Yes Outcome
-            self.outcome_yes.outcome_id = outcome_ids[1]; 
-            self.outcome_yes.outcome_index =1;
-            self.outcome_yes.resolved = false;
-            self.outcome_yes.event_id = self.event.key();
-            self.outcome_yes.creation_date = clock.unix_timestamp;
-            self.outcome_yes.shares = 0;
-            self.outcome_yes.total_liquidity = 0;
-            self.outcome_yes.seed = seeds[1];
-            self.outcome_yes.bump = outcome_yes_bump;
+            self.outcome_yes.set_inner(Outcome {
+                outcome_id: outcome_yes_id,
+                outcome_index: 1,
+                resolved: false,
+                event_id: self.event.key(),
+                creation_date: clock.unix_timestamp,
+                shares: 0,
+                total_liquidity: 0,
+                seed: outcome_yes_seed,
+                bump: bumps.outcome_yes,
+            });
     
-          
-
+          // Store outcome PDAs in event
+       self.event.outcomes = [self.outcome_no.key(), self.outcome_yes.key()];
+        
         Ok(())
     }
 }
