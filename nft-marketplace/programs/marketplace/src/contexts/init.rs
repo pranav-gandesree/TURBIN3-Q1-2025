@@ -1,17 +1,20 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenInterface};
 
-use crate::{state::Marketplace, MarketplaceError};
+use crate::state::Marketplace;
+
+use crate::error::MarketplaceError;
 
 #[derive(Accounts)]
 #[instruction(name: String)]
 pub struct Initialize<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
+
     #[account(
         init,
         payer = admin,
-        seeds = [b"marketplace", name.as_str().as_bytes()],
+        seeds = [b"marketplace", name.as_bytes()],
         bump,
         space = Marketplace::INIT_SPACE
     )]
@@ -21,6 +24,7 @@ pub struct Initialize<'info> {
         bump,
     )]
     pub treasury: SystemAccount<'info>,
+
     #[account(
         init,
         payer = admin,
@@ -36,17 +40,19 @@ pub struct Initialize<'info> {
 
 impl<'info> Initialize<'info> {
     pub fn init(&mut self, name: String, fee: u16, bumps: &InitializeBumps) -> Result<()> {
-        require!(name.len() > 0 && name.len() < 4 + 33, MarketplaceError::NameTooLong);
-        
+        require!(
+            !name.is_empty() && name.len() < 4 + 33,
+            MarketplaceError::NameToLong
+        );
+
         self.marketplace.set_inner(Marketplace {
             admin: self.admin.key(),
             fee,
             bump: bumps.marketplace,
             treasury_bump: bumps.treasury,
-            rewards_bump: bumps.rewards_mint,
+            reward_bump: bumps.rewards_mint,
             name,
         });
-
         Ok(())
     }
 }
