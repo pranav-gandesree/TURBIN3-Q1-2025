@@ -59,8 +59,9 @@ pub mod capstone {
 
     pub fn resolve_event(
         ctx: Context<ResolveEvent>,
+        result: u8
     ) ->Result<()>{
-        ctx.accounts.resolve_event()?;
+        ctx.accounts.resolve_event(result)?;
         Ok(())
     }
 

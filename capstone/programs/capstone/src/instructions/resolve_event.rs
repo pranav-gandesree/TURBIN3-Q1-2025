@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{
-Event, Outcome
-
+use crate::{ Event, Outcome, error::ErrorCode
 };
 
 
@@ -49,8 +47,8 @@ pub struct ResolveEvent<'info>{
     )]
     pub outcome_no: Account<'info, Outcome>,
 
-    #[account(mut)]
-    pub switchboard_feed: AccountInfo<'info>,
+    // #[account(mut)]
+    // pub switchboard_feed: AccountInfo<'info>,
     
 
     pub system_program: Program<'info, System>,
@@ -59,8 +57,8 @@ pub struct ResolveEvent<'info>{
 }
 
 
-impl<'info> ResolveEvent<'info> {
-    pub fn resolve_event(&mut self) -> Result<()> {
+// impl<'info> ResolveEvent<'info> {
+    // pub fn resolve_event(&mut self) -> Result<()> {
     //     // Fetch the event result from Switchboard
     //     // let switchboard_result = Self::fetch_switchboard_result(&self.switchboard_feed)?;
 
@@ -83,8 +81,8 @@ impl<'info> ResolveEvent<'info> {
     //         if resolved_outcome == 1 { "Yes" } else { "No" }
     //     );
 
-        Ok(())
-    }
+        // Ok(())
+    // }
 
     // fn fetch_switchboard_result(&self,  feed: &AccountInfo) -> Result<f64> {
     //     // Deserialize the Switchboard account
@@ -92,5 +90,34 @@ impl<'info> ResolveEvent<'info> {
     //     msg!("Switchboard fetched value: {}", value);
     //     Ok(value)
     // }
-}
+// }
 
+
+
+
+
+impl<'info> ResolveEvent<'info> {
+    pub fn resolve_event(&mut self, result: u8) -> Result<()> {
+        require!(result == 0 || result == 1,  ErrorCode::InvalidOutcomeIndex);
+        require!(!self.event.resolved,  ErrorCode::EventAlreadyResolved);
+
+        // Set winning outcome
+        self.event.winning_outcome = Some(result);
+        self.event.resolved = true;
+
+        // Mark the correct outcome as resolved
+        if result == 1 {
+            self.outcome_yes.resolved = true;
+        } else {
+            self.outcome_no.resolved = true;
+        }
+
+        msg!(
+            "Event {} resolved: {}",
+            self.event.event_id,
+            if result == 1 { "Yes" } else { "No" }
+        );
+
+        Ok(())
+    }
+}

@@ -9,6 +9,7 @@ use crate::{
 #[derive(Accounts)]
 #[instruction(outcome_yes_id: u64,outcome_no_id: u64, outcome_yes_seed: u64, outcome_no_seed: u64)]
 pub struct InitializeOutcomes<'info>{
+    
     #[account(mut)]
     pub creator: Signer<'info>,
 

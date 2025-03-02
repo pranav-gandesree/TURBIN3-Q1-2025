@@ -19,16 +19,6 @@ pub struct PlaceBet<'info>{
     )]
     pub event: Account<'info, Event>,
 
-    // #[account(
-    //     mut,
-    //     constraint = 
-    //         (outcome_index == 0 && outcome.key() == event.outcomes[0]) ||
-    //         (outcome_index == 1 && outcome.key() == event.outcomes[1])
-    //         @ ErrorCode::InvalidOutcome
-    // )]
-    // pub outcome: Account<'info, Outcome>,
-
-
     #[account(
         mut,
         seeds = [
