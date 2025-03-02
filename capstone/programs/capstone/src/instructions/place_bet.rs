@@ -2,10 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
 use crate::{
-    error::ErrorCode,
-    Bet,
-    Event,
-    Outcome, User, UserBet
+    calculate_lmsr_price, error::ErrorCode, Bet, Event, Outcome, User, UserBet
 };
 
 
@@ -22,14 +19,39 @@ pub struct PlaceBet<'info>{
     )]
     pub event: Account<'info, Event>,
 
+    // #[account(
+    //     mut,
+    //     constraint = 
+    //         (outcome_index == 0 && outcome.key() == event.outcomes[0]) ||
+    //         (outcome_index == 1 && outcome.key() == event.outcomes[1])
+    //         @ ErrorCode::InvalidOutcome
+    // )]
+    // pub outcome: Account<'info, Outcome>,
+
+
     #[account(
         mut,
-        constraint = 
-            (outcome_index == 0 && outcome.key() == event.outcomes[0]) ||
-            (outcome_index == 1 && outcome.key() == event.outcomes[1])
-            @ ErrorCode::InvalidOutcome
+        seeds = [
+            b"OUTCOME",
+            event.key().as_ref(),
+            &outcome_no.outcome_id.to_le_bytes().as_ref(),
+            &outcome_no.seed.to_le_bytes()
+            ],
+        bump,
     )]
-    pub outcome: Account<'info, Outcome>,
+    pub outcome_no: Account<'info, Outcome>,
+
+    #[account(
+        mut,
+        seeds = [
+            b"OUTCOME",
+            event.key().as_ref(),
+            &outcome_yes.outcome_id.to_le_bytes().as_ref(),
+            &outcome_yes.seed.to_le_bytes()
+            ],
+        bump,
+    )]
+    pub outcome_yes: Account<'info, Outcome>,
 
     #[account(
         init,
@@ -91,6 +113,8 @@ pub struct PlaceBet<'info>{
 
 
 impl<'info> PlaceBet<'info> {
+
+
     pub fn place_bet(
         &mut self,
         bet_amount: u64,
@@ -102,7 +126,25 @@ impl<'info> PlaceBet<'info> {
 
         let better = self.better.key();
         let event = self.event.key();
-        let outcome = self.outcome.key();
+
+        
+        // We need to extract the shares values before any mutable borrows
+        let outcome_yes_shares = self.outcome_yes.shares;
+        let outcome_no_shares = self.outcome_no.shares;
+        
+        // Calculate shares using the extracted values
+        let b: f64 = 100.0; // LMSR liquidity parameter (adjustable)
+        let shares_before: f64 = (outcome_no_shares + outcome_yes_shares) as f64;
+        let cost = b * ((shares_before + bet_amount as f64) / b).ln();
+        let shares_bought = cost as u64;
+
+        
+        let outcome = if outcome_index == 1 {
+            &mut self.outcome_yes
+        } else {
+            &mut self.outcome_no
+        };
+
 
         // Transfer bet amount from better's token account to win_pool
         anchor_spl::token::transfer(
@@ -117,11 +159,19 @@ impl<'info> PlaceBet<'info> {
             bet_amount,
         )?;
 
+     
+        // Update shares and total liquidity
+        outcome.shares += shares_bought;
+        outcome.total_liquidity += bet_amount;
+
+
+
+
         // Initialize bet account
         self.bet.set_inner(Bet {
             better,
             event,
-            outcome,
+            outcome: outcome.key(),
             outcome_index,
             claimed: false,
             creation_date: Clock::get()?.unix_timestamp,
@@ -141,8 +191,16 @@ impl<'info> PlaceBet<'info> {
 
         self.user.total_bets +=1;
 
-        
 
-        Ok(())
+        // Recalculate LMSR prices
+        let (price_yes, price_no) =
+        calculate_lmsr_price(self.outcome_yes.shares, self.outcome_no.shares);
+
+        msg!("Updated Prices: Yes = {:.4}, No = {:.4}",price_yes,price_no);
+
+         Ok(())
+
     }
 }
+
+

@@ -38,6 +38,12 @@ pub enum ErrorCode {
 
     #[msg("Bet amount should be greater than zero")]
     InvalidBetAmount,
+
+    #[msg("no rewards")]
+    NoRewards,
+
+    #[msg("not a winner")]
+    NotAWinner,
 }
 
 

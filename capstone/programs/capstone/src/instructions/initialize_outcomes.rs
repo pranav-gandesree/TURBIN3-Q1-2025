@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 use crate::{
-    error::ErrorCode, Event, Outcome
+    calculate_lmsr_price, error::ErrorCode, Event, Outcome
 };
 
 
@@ -54,6 +54,7 @@ pub struct InitializeOutcomes<'info>{
 
 impl<'info> InitializeOutcomes<'info>{
 
+
     pub fn initialize_outcomes(
         &mut self,
         outcome_yes_id: u64,
@@ -93,6 +94,10 @@ impl<'info> InitializeOutcomes<'info>{
     
           // Store outcome PDAs in event
        self.event.outcomes = [self.outcome_no.key(), self.outcome_yes.key()];
+
+       // calculate here initial prise of the tokens using lmsr
+        let (price_yes, price_no) = calculate_lmsr_price(0, 0);
+        msg!("Initial Price: Yes = {:.4}, No = {:.4}", price_yes, price_no);
         
         Ok(())
     }

@@ -19,11 +19,13 @@ pub struct Event{
     pub win_pool: Pubkey, //when users bet the amount will go to this pubkey owned by event pda
 
     pub seed: u64,
-    pub event_bump: u8
+    pub event_bump: u8,
+
+    pub aggregator: Pubkey,
 
 }
 
 
 impl Space for Event {
-    const INIT_SPACE: usize = 8 + (4 + 100) + 8 + 32 + 1 + (2 * 32) + 2 + 32 + 8 + 1;
+    const INIT_SPACE: usize = 8 + (4 + 100) + 8 + 32 + 1 + (2 * 32) + 2 + 32 + 8 + 1 + 32;
 }

@@ -61,7 +61,8 @@ impl<'info> CreateEvent<'info>{
         event_id: u64,
         title: String,
         seed: u64,
-        bumps: &CreateEventBumps
+        bumps: &CreateEventBumps,
+        aggregator: Pubkey,
     )-> Result<()> {
 
        require!(title.len() <= 100, ErrorCode::TitleTooLong);
@@ -76,7 +77,8 @@ impl<'info> CreateEvent<'info>{
             winning_outcome: None,
             win_pool: self.win_pool.key(),
             seed,
-            event_bump: bumps.event
+            event_bump: bumps.event,
+            aggregator
        });
     
         Ok(())
