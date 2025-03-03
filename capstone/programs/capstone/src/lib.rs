@@ -29,9 +29,9 @@ pub mod capstone {
         event_id: u64,
         title: String,
         seed: u64,
-        aggregator: Pubkey
+
     )-> Result<()> {
-       ctx.accounts.create_event(event_id, title, seed, &ctx.bumps, aggregator)?;
+       ctx.accounts.create_event(event_id, title, seed, &ctx.bumps)?;
 
         Ok(())
     }

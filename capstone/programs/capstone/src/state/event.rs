@@ -21,8 +21,6 @@ pub struct Event{
     pub seed: u64,
     pub event_bump: u8,
 
-    pub aggregator: Pubkey,
-
 }
 
 

@@ -15,13 +15,15 @@ pub struct ResolveEvent<'info>{
         mut,
         seeds = [
           b"EVENT",
-          authority.key().as_ref(),
+          event.creator.key().as_ref(),
           event.event_id.to_le_bytes().as_ref(),
           event.seed.to_le_bytes().as_ref()
         ],
         bump
     )]
     pub event: Account<'info, Event>,
+
+
 
     #[account(
         mut,
@@ -98,6 +100,8 @@ pub struct ResolveEvent<'info>{
 
 impl<'info> ResolveEvent<'info> {
     pub fn resolve_event(&mut self, result: u8) -> Result<()> {
+
+        require!(self.event.creator == self.authority.key(), ErrorCode::UnauthorizedAccess); 
         require!(result == 0 || result == 1,  ErrorCode::InvalidOutcomeIndex);
         require!(!self.event.resolved,  ErrorCode::EventAlreadyResolved);
 
